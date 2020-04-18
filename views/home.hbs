@@ -126,12 +126,17 @@
                 var index = 0;
                 while (true) {
                     if (lines[index].length < 5) {
-                        break;
+                        if (lines[index + 1].length == 112) {
+                            index += 1;
+                            break;
+                        }
                     }
                     index += 1;
                 }
 
-                index += 1;
+                console.log(index);
+                console.log(lines[index]);
+
                 var boardSize = 0;
                 for (var i = 0; i < lines[index].length; i++) {
                     if (lines[index][i] == "[") {
