@@ -21,6 +21,7 @@
             <button id="prev-round-button">&lt Prev</button>
             <p style="display:inline" align="center" id="round-text">0 / 0</p>
             <button id="next-round-button">Next &gt</button>
+            <p>Navigate through frames with 'A/D' or arrow keys</p>
 
             <br>
         </div>
@@ -199,7 +200,7 @@
             }
 
             document.addEventListener('keydown', (e) => {
-                if (e.code === "ArrowLeft" || e.key == "s") {
+                if (e.code === "ArrowLeft" || e.key == "a") {
                     prevRound();
                 }
                 if (e.code === "ArrowRight" || e.key == "d") {
