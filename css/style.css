@@ -1,0 +1,15 @@
+.left-column {
+    float: left;
+    width: 60%;
+}
+
+.right-column {
+    float: right;
+    width: 39.9%;
+}
+
+.board {
+    padding: 0;
+    margin: auto;
+    display: block;
+}

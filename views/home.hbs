@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <meta charset="utf-8">
+        <title>Battlehack2020 Viewer</title>
+    </head>
+    <body>
+        <h1 align="center">Battlehack 2020 Viewer</h1>
+
+        <div class="left-column">
+            <canvas class="board" id="map-canvas" height="0" width="0"></canvas>
+        </div>
+
+        <div class="right-column">
+            Upload Replay:
+            <input type="file" value="upload" id="file-input">
+            <br>
+
+            <p style="display:inline" width=200%>Round:</p>
+            <button id="prev-round-button">&lt Prev</button>
+            <p style="display:inline" align="center" id="round-text">0 / 0</p>
+            <button id="next-round-button">Next &gt</button>
+
+            <br>
+        </div>
+
+
+        <script type="text/javascript">
+            "use strict";
+
+            const WHITE = "#FFFFFF"
+            const LIGHT_GRAY = "#9F9F9F"
+            const DARK_GRAY = "#5F5F5F"
+            const BLACK = "#000000";
+            const GREEN = "#007F00";
+            const RED = "#ff0000";
+            const YELLOW = "#ffff00";
+            const BLUE = "#0000ff";
+
+            var outerPadding = 5;
+            var innerPadding = 3;
+            var squareSize = 40;
+            var circleRadius = 5;
+
+            const canvas = document.getElementById('map-canvas');
+            const context = canvas.getContext('2d');
+
+            function drawBoard () {
+                canvas.width = 2 * outerPadding + (frameWidth - 1) * innerPadding + frameWidth * squareSize;
+                canvas.height = 2 * outerPadding + (frameHeight - 1) * innerPadding + frameHeight * squareSize;
+
+                context.beginPath();
+                context.rect(0, 0, canvas.width, canvas.height);
+                context.closePath();
+
+                context.fillStyle = GREEN;
+                context.fill();
+
+                context.font = '16pt sans-serif';
+                context.fillStyle = BLACK;
+                context.textAlign = "center";
+                context.textBaseline = 'middle';
+
+                var frame = frames[roundNum];
+                for (var i = 0; i < frameHeight; i++) {
+                    for (var j = 0; j < frameWidth; j++) {
+                        var x = outerPadding + i * innerPadding + i * squareSize;
+                        var y = outerPadding + j * innerPadding + j * squareSize;
+                        context.beginPath();
+                        context.rect(y, x, squareSize, squareSize);
+                        context.closePath();
+
+                        if (frame[i][j][0] == "N") {
+                            if ((i + j) % 2 == 0) {
+                                context.fillStyle = LIGHT_GRAY;
+                            } else {
+                                context.fillStyle = DARK_GRAY;
+                            }
+                        } else if (frame[i][j][0] == "W") {
+                            context.fillStyle = WHITE;
+                        } else if (frame[i][j][0] == "B") {
+                            context.fillStyle = BLACK;
+                        }
+                        context.fill();
+
+                        if (frame[i][j][0] != "N") {
+                            context.fillStyle = RED;
+                            var wx = 2 + outerPadding + i * innerPadding + (i + 0.5) * squareSize;
+                            var wy = outerPadding + j * innerPadding + (j + 0.5) * squareSize;
+                            context.fillText(frame[i][j][1], wy, wx);
+                        }
+                    }
+                }
+            }
+
+            var fileInput = document.getElementById("file-input");
+            fileInput.addEventListener("change", uploadMap, false);
+
+            var loadedFrames = false;
+            var frames = [];
+            var frameWidth = -1;
+            var frameHeight = -1;
+            var winner = "";
+
+            var roundNum = 0;
+            var maxRound = 0;
+
+            function uploadMap (event) {
+                if (event.target.files.length > 0) {
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        // do stuff here
+                        frames = parseData(event.target.result);
+                        loadedFrames = true;
+                        maxRound = frames.length - 1;
+                        setRoundNum(1);
+                    }
+                    reader.readAsText(event.target.files[0]);
+                }
+            }
+
+            function parseData(data) {
+                var lines = data.split("\n");
+                var index = 0;
+                while (true) {
+                    if (lines[index].length < 5) {
+                        break;
+                    }
+                    index += 1;
+                }
+
+                index += 1;
+                var boardSize = 0;
+                for (var i = 0; i < lines[index].length; i++) {
+                    if (lines[index][i] == "[") {
+                        boardSize += 1;
+                    }
+                }
+                frameWidth = frameHeight = boardSize;
+
+
+                var readFrames = [[]];
+                var fIndex = 1;
+                while (true) {
+                    if (lines[index].substring(0, 4) == "Team") {
+                        winner = lines[index].substring(5, 10);
+                        break;
+                    }
+                    readFrames.push(new Array(frameHeight));
+                    for (var i = 0; i < frameHeight; i++) {
+                        readFrames[fIndex][i] = lines[index].split("]");
+                        readFrames[fIndex][i].pop();
+                        for (var j = 0; j < frameWidth; j++) {
+                            var temp = readFrames[fIndex][i][j].trim().substring(1).trim();
+                            if (temp == "") {
+                                readFrames[fIndex][i][j] = ["N", 0];
+                            } else {
+                                readFrames[fIndex][i][j] = [temp.charAt(0), parseInt(temp.substring(1).trim())];
+                            }
+                        }
+                        index += 1;
+                    }
+                    index += 1;
+                    fIndex += 1;
+                }
+                console.log("Read " + readFrames.length + " frames");
+                console.log("Winner: " + winner)
+                return readFrames;
+            }
+
+            var prevRoundButton = document.getElementById("prev-round-button");
+            var nextRoundButton = document.getElementById("next-round-button");
+            var roundText = document.getElementById("round-text");
+
+            prevRoundButton.onclick = prevRound;
+            nextRoundButton.onclick = nextRound;
+
+            function prevRound() {
+                if (loadedFrames) {
+                    if (roundNum > 1) {
+                        setRoundNum(roundNum - 1);
+                    }
+                }
+            }
+
+            function nextRound() {
+                if (loadedFrames) {
+                    if (roundNum < maxRound) {
+                        setRoundNum(roundNum + 1);
+                    }
+                }
+            }
+
+            function setRoundNum (num) {
+                roundNum = num;
+                roundText.innerHTML = roundNum + " / " + maxRound;
+                drawBoard();
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.code === "ArrowLeft" || e.key == "s") {
+                    prevRound();
+                }
+                if (e.code === "ArrowRight" || e.key == "d") {
+                    nextRound();
+                }
+            });
+
+        </script>
+
+    </body>
+</html>

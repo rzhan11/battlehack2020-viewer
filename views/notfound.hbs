@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <meta charset="utf-8">
+        <title>Error 404</title>
+    </head>
+    <body>
+        <h2>404. That's an error.</h2>
+        <p id="404-info" style="font-family:serif"></p>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script>
+            $("#404-info").text("The requested URL '" + window.location.href + "' was not found on this server.");
+        </script>
+    </body>
+</html>
