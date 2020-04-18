@@ -1,8 +1,8 @@
 # Battlehack 2020 Viewer
 
-## Installation
+Viewer for Battlehack 2020 replay files (from scrimmages)
 
-## Run:
+## How-to:
 1. Clone this repo
 2. `cd` into this repo
 3. Run
