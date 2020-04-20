@@ -17,13 +17,13 @@ app.set('view engine', 'hbs');
 // -------------- express endpoint definition -------------- //
 
 app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use("/node_modules", express.static(__dirname + "/node_modules"));
 
 app.get('/', function(req, res){
     console.log("home anon()");
     res.render("home", {
     });
 });
-
 // -------------- listener -------------- //
 // The listener is what keeps node 'alive.'
 
