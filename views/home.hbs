@@ -113,10 +113,8 @@
 		const MEDIUM_GRAY = "#9F9F9F"
 		const DARK_GRAY = "#7F7F7F"
 		const BLACK = "#000000";
-		const GREEN = "#007F00";
-		const RED = "#ff0000";
-		const YELLOW = "#ffff00";
-		const BLUE = "#0000ff";
+		const RED = "#FF0000";
+		const BLUE = "#0000FF";
 
 		var outerPadding = 5;
 		var innerPadding = 3;
@@ -166,7 +164,11 @@
 					context.fill();
 
 					if (frame[i][j][0] != "N") {
-						context.fillStyle = RED;
+						if (frame[i][j][0] == "W") {
+							context.fillStyle = BLUE;
+						} else if (frame[i][j][0] == "B") {
+							context.fillStyle = RED;
+						}
 						var wx = wordOffset + outerPadding + i * innerPadding + (i + 0.5) * squareSize;
 						var wy = outerPadding + j * innerPadding + (j + 0.5) * squareSize;
 						context.fillText(frame[i][j][1], wy, wx);
