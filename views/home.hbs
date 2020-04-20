@@ -22,14 +22,31 @@
             <input type="file" value="upload" id="file-input">
             <br>
 
-            <p style="display:inline" width=200%>Round:</p>
-            <button id="prev-round-button">&lt Prev</button>
-            <p style="display:inline" align="center" id="round-text">0 / 0</p>
-            <button id="next-round-button">Next &gt</button>
-            <p>Navigate through frames with 'A/D' or arrow keys or use the slider below</p>
-            <div class="slidecontainer">
-              <input type="range" min="1" max="1" value="0" class="slider" id="myRange" style="width: calc(100% - 40px); max-width: 100%">
+            <div>
+                <p style="display:inline" width=200%>Round:</p>
+                <button id="prev-round-button">&lt Prev</button>
+                <p style="display:inline" align="center" id="round-text">0 / 0</p>
+                <button id="next-round-button">Next &gt</button>
             </div>
+
+            <div>
+                <p style="display:inline" width=200%>Speed:</p>
+                <button id="slower-speed-button">&lt Slower</button>
+                <p style="display:inline" align="center" id="speed-text"></p>
+                <button id="faster-speed-button">Faster &gt</button>
+            </div>
+
+            <p>'A/D' or 'Left/Right' : Change frames</p>
+            <p>'Space' : Play/Pause</p>
+            <p>'W/S' or 'Up/Down' : Change speed</p>
+
+            <div class="slidecontainer">
+                <input type="range" min="1" max="1" value="0" class="slider" id="frame-range" style="width: calc(100% - 40px); max-width: 100%">
+            </div>
+            <button id="play-button">Play</button>
+
+            <p id="metadata-text"></p>
+            <p id="winner-text"></p>
 
             <br>
         </div>
@@ -55,7 +72,7 @@
             const canvas = document.getElementById('map-canvas');
             const context = canvas.getContext('2d');
 
-            function drawBoard () {
+            function drawFrame () {
                 canvas.width = 2 * outerPadding + (frameWidth - 1) * innerPadding + frameWidth * squareSize;
                 canvas.height = 2 * outerPadding + (frameHeight - 1) * innerPadding + frameHeight * squareSize;
 
@@ -103,38 +120,51 @@
                 }
             }
 
+            var metadataText = document.getElementById("metadata-text");
+
+            function displayMetadata() {
+                metadataText.innerHTML = "White: " + metadata.whiteTeamName + "<br>";
+                metadataText.innerHTML += "Black: " + metadata.blackTeamName + "<br>";
+                metadataText.innerHTML += "<br>";
+                metadataText.innerHTML += "Version: " + metadata.version;
+            };
+
             var fileInput = document.getElementById("file-input");
             fileInput.addEventListener("change", uploadMap, false);
-            
+
             var loadedFrames = false;
             var frames = [];
             var frameWidth = -1;
             var frameHeight = -1;
             var winner = "";
+            var metadata = {};
 
             var roundNum = 0;
-            var maxRound = 0;
+            var frameSpeed = 8;
+            var minFrameSpeed = 1;
+            var maxFrameSpeed = 32;
+            var framePlaying = false;
 
             function uploadMap (event) {
                 if (event.target.files.length > 0) {
                     var reader = new FileReader();
                     reader.onload = function (event) {
                         // do stuff here
-                        frames = parseData(event.target.result);
-                        loadedFrames = true;
-                        maxRound = frames.length - 1;
-                        setRoundNum(1);
-                        range.max = maxRound
-                        range.oninput = function() {
-                          setRoundNum(parseInt(this.value))
-                        } 
+                        loadData(event.target.result);
                     }
                     reader.readAsText(event.target.files[0]);
                 }
             }
 
-            function parseData(data) {
+            function loadData(data) {
                 var lines = data.split("\n");
+
+                metadata = {};
+                metadata.whiteTeamName = lines[0].substring(8);
+                metadata.blackTeamName = lines[1].substring(8);
+                metadata.version = lines[3].substring(9);
+
+                // load game frames
                 var index = 0;
                 while (true) {
                     if (lines[index].length < 5) {
@@ -146,8 +176,8 @@
                     index += 1;
                 }
 
-                console.log(index);
-                console.log(lines[index]);
+                console.log("Frames start on line " + index);
+                // console.log(lines[index]);
 
                 var boardSize = 0;
                 for (var i = 0; i < lines[index].length; i++) {
@@ -158,23 +188,23 @@
                 frameWidth = frameHeight = boardSize;
 
 
-                var readFrames = [[]];
+                frames = [[]];
                 var fIndex = 1;
                 while (true) {
                     if (lines[index].substring(0, 4) == "Team") {
                         winner = lines[index].substring(5, 10);
                         break;
                     }
-                    readFrames.push(new Array(frameHeight));
+                    frames.push(new Array(frameHeight));
                     for (var i = 0; i < frameHeight; i++) {
-                        readFrames[fIndex][i] = lines[index].split("]");
-                        readFrames[fIndex][i].pop();
+                        frames[fIndex][i] = lines[index].split("]");
+                        frames[fIndex][i].pop();
                         for (var j = 0; j < frameWidth; j++) {
-                            var temp = readFrames[fIndex][i][j].trim().substring(1).trim();
+                            var temp = frames[fIndex][i][j].trim().substring(1).trim();
                             if (temp == "") {
-                                readFrames[fIndex][i][j] = ["N", 0];
+                                frames[fIndex][i][j] = ["N", 0];
                             } else {
-                                readFrames[fIndex][i][j] = [temp.charAt(0), parseInt(temp.substring(1).trim())];
+                                frames[fIndex][i][j] = [temp.charAt(0), parseInt(temp.substring(1).trim())];
                             }
                         }
                         index += 1;
@@ -182,51 +212,144 @@
                     index += 1;
                     fIndex += 1;
                 }
-                console.log("Read " + readFrames.length + " frames");
-                console.log("Winner: " + winner)
-                return readFrames;
+
+                console.log("Read " + (frames.length - 1) + " frames");
+
+                loadedFrames = true;
+                metadata.maxRound = frames.length - 1;
+                // set up range slider
+                frameRange.max = metadata.maxRound;
+                frameRange.oninput = function() {
+                    setRoundNum(parseInt(this.value))
+                }
+
+                // update screen
+                displayMetadata();
+                setRoundNum(1);
             }
 
             var prevRoundButton = document.getElementById("prev-round-button");
             var nextRoundButton = document.getElementById("next-round-button");
-            var range = document.getElementById("myRange");
             var roundText = document.getElementById("round-text");
+
+            var slowerSpeedButton = document.getElementById("slower-speed-button");
+            var fasterSpeedButton = document.getElementById("faster-speed-button");
+            var speedText = document.getElementById("speed-text");
+            speedText.innerHTML = frameSpeed;
+
+            var playButton = document.getElementById("play-button");
+
+            var frameRange = document.getElementById("frame-range");
+            var winnerText = document.getElementById("winner-text");
 
             prevRoundButton.onclick = prevRound;
             nextRoundButton.onclick = nextRound;
+
+            slowerSpeedButton.onclick = decreaseSpeed;
+            fasterSpeedButton.onclick = increaseSpeed;
+
+            playButton.onclick = changePlay;
 
             function prevRound() {
                 if (loadedFrames) {
                     if (roundNum > 1) {
                         setRoundNum(roundNum - 1);
-                        range.value = roundNum - 1
+                        frameRange.value = roundNum - 1
                     }
                 }
             }
 
             function nextRound() {
                 if (loadedFrames) {
-                    if (roundNum < maxRound) {
+                    if (roundNum < metadata.maxRound) {
                         setRoundNum(roundNum + 1);
-                        range.value = roundNum + 1
+                        frameRange.value = roundNum + 1
                     }
                 }
             }
 
             function setRoundNum (num) {
                 roundNum = num;
-                roundText.innerHTML = roundNum + " / " + maxRound;
-                drawBoard();
+                roundText.innerHTML = roundNum + " / " + metadata.maxRound;
+                drawFrame();
+                if (num == metadata.maxRound) {
+                    winnerText.style.color = RED;
+                    winnerText.innerHTML = "Winner: ";
+                    if (winner == "WHITE") {
+                        winnerText.innerHTML += metadata.whiteTeamName;
+                    } else {
+                        winnerText.innerHTML += metadata.blackTeamName;
+                    }
+                } else {
+                    winnerText.innerHTML = "";
+                }
+            }
+
+            function decreaseSpeed() {
+                if (frameSpeed > minFrameSpeed) {
+                    frameSpeed /= 2;
+                    speedText.innerHTML = frameSpeed;
+                }
+            }
+
+            function increaseSpeed() {
+                if (frameSpeed < maxFrameSpeed) {
+                    frameSpeed *= 2;
+                    speedText.innerHTML = frameSpeed;
+                }
+            }
+
+            function changePlay () {
+                if (loadedFrames) {
+                    framePlaying = !framePlaying;
+                    if (framePlaying) {
+                        playButton.innerHTML = "Pause";
+                    } else {
+                        playButton.innerHTML = "Play";
+                    }
+                }
             }
 
             document.addEventListener('keydown', (e) => {
                 if (e.code === "ArrowLeft" || e.key == "a") {
+                    if (framePlaying) {
+                        changePlay();
+                    }
                     prevRound();
                 }
                 if (e.code === "ArrowRight" || e.key == "d") {
+                    if (framePlaying) {
+                        changePlay();
+                    }
                     nextRound();
                 }
+                if (e.code === "ArrowDown" || e.key == "s") {
+                    decreaseSpeed();
+                }
+                if (e.code === "ArrowUp" || e.key == "w") {
+                    increaseSpeed();
+                }
+                if (e.code === "Space" || e.key == "w") {
+                    changePlay();
+                }
             });
+
+            var intervalTime = 10;
+            var timeSinceUpdate = 0;
+            setInterval(function () {
+                if (loadedFrames && framePlaying) {
+                    timeSinceUpdate += intervalTime;
+                    var frameChange = Math.trunc(timeSinceUpdate / (1000 / frameSpeed));
+                    for (var i = 0; i < frameChange; i++) {
+                        nextRound();
+                        timeSinceUpdate -= frameChange * (1000 / frameSpeed);
+                    }
+                    if (roundNum == metadata.maxRound) {
+                        framePlaying = false;
+                        timeSinceUpdate = 0;
+                    }
+                }
+            }, intervalTime);
 
         </script>
 
