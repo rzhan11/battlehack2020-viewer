@@ -117,7 +117,7 @@
 
 		var outerPadding = 5;
 		var innerPadding = 0;
-		var squareSize = 40;
+		var squareSize = 50;
 		var circleRadius = 5;
 
 		const canvas = document.getElementById('map-canvas');
@@ -134,7 +134,7 @@
 			context.fillStyle = BLACK;
 			context.fill();
 
-			context.font = '16pt sans-serif';
+			context.font = '20pt sans-serif';
 			context.fillStyle = BLACK;
 			context.textAlign = "center";
 			context.textBaseline = 'middle';
@@ -209,10 +209,15 @@
 		function loadData(data) {
 			var lines = data.split("\n");
 
-			metadata = {};
-			metadata.whiteTeamName = lines[0].substring(8);
-			metadata.blackTeamName = lines[1].substring(8);
-			metadata.version = lines[3].substring(9);
+			if (lines[0].substring(0, 8) == "Team 1: ") {
+				metadata.whiteTeamName = lines[0].substring(8);
+				metadata.blackTeamName = lines[1].substring(8);
+				metadata.version = lines[3].substring(9);
+			} else {
+				metadata.whiteTeamName = "Local";
+				metadata.blackTeamName = "Local";
+				metadata.version = "Local";
+			}
 
 			// load game frames
 			var index = 0;
@@ -332,6 +337,7 @@
 				} else {
 					winnerText.innerHTML += metadata.blackTeamName;
 				}
+				winnerText.innerHTML += " (" + winner + ")";
 			} else {
 				winnerText.innerHTML = "";
 			}
@@ -397,7 +403,7 @@
 					timeSinceUpdate -= frameChange * (1000 / frameSpeed);
 				}
 				if (roundNum == metadata.maxRound) {
-					framePlaying = false;
+					changePlay();
 					timeSinceUpdate = 0;
 				}
 			}
