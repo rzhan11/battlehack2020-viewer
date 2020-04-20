@@ -1,15 +1,12 @@
-.left-column {
-    float: left;
-    width: 60%;
+.top-pad {
+    padding-top: 40px;
 }
 
-.right-column {
-    float: right;
-    width: 39.9%;
-}
-
-.board {
-    padding: 0;
-    margin: auto;
+canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
     display: block;
+    width: 800px;
 }

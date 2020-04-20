@@ -18,8 +18,13 @@
   },
   "homepage": "https://github.com/rzhan11/battlehack2020-viewer#readme",
   "dependencies": {
+    "bootstrap": "^4.4.1",
+    "bootstrap-social": "^5.1.1",
     "express": "^4.17.1",
+    "font-awesome": "^4.7.0",
     "fs": "0.0.1-security",
-    "hbs": "^4.1.1"
+    "hbs": "^4.1.1",
+    "jquery": "^3.5.0",
+    "popper.js": "^1.16.1"
   }
 }
