@@ -65,7 +65,7 @@
             const BLUE = "#0000ff";
 
             var outerPadding = 5;
-            var innerPadding = 3;
+            var innerPadding = 0;
             var squareSize = 40;
             var circleRadius = 5;
 
@@ -80,7 +80,7 @@
                 context.rect(0, 0, canvas.width, canvas.height);
                 context.closePath();
 
-                context.fillStyle = WHITE;
+                context.fillStyle = BLACK;
                 context.fill();
 
                 context.font = '16pt sans-serif';
@@ -329,7 +329,7 @@
                 if (e.code === "ArrowUp" || e.key == "w") {
                     increaseSpeed();
                 }
-                if (e.code === "Space" || e.key == "w") {
+                if (e.code === "Space") {
                     changePlay();
                 }
             });
@@ -345,7 +345,7 @@
                         timeSinceUpdate -= frameChange * (1000 / frameSpeed);
                     }
                     if (roundNum == metadata.maxRound) {
-                        framePlaying = false;
+                        changePlay();
                         timeSinceUpdate = 0;
                     }
                 }
