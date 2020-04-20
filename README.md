@@ -17,4 +17,5 @@ python run.py --raw-text bot1 bot2 > log.txt
 
 ## Thank You
 neeyanthkvk for making it the website pretty and finding lots of bugs.
+
 StoneT2000 for adding the range slider.
