@@ -1,6 +1,6 @@
 # Battlehack 2020 Viewer
 
-Viewer for Battlehack 2020 replay files (from scrimmages)
+Viewer for Battlehack 2020 replay files
 
 ## How-to:
 1. Clone this repo
@@ -8,3 +8,9 @@ Viewer for Battlehack 2020 replay files (from scrimmages)
 3. Run `npm install`
 4. Run `npm start`
 5. Navigate to http://localhost:8080/
+
+## Notes for local replays
+Be sure to run your games with the flag `--raw-text` and pipe your output to a log file
+```
+python run.py --raw-text bot1 bot2 > log.txt
+```
