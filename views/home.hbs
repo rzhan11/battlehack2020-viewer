@@ -21,7 +21,7 @@
 
 <body>
 
-	<div id="legendModal" class="modal fade" role="dialog">
+	<div id="helpModal" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg" role="content">
 			<div class="modal-content">
 				<div class="modal-body">
@@ -90,7 +90,7 @@
 					<input type="range" min="1" max="1" value="0" class="slider" id="frame-range" style="width: calc(100% - 40px); max-width: 100%">
 				</div>
 				<button class="btn btn-primary btn-small" id="play-button">Play</button>
-				<button class="btn btn-primary btn-small" id="legend-modal-button">Legend</button>
+				<button class="btn btn-primary btn-small" id="help-modal-button">Help</button>
 				<br>
 			</div>
 		</div>
@@ -103,15 +103,15 @@
 		"use strict";
 
 		$(document).ready(function() {
-			$("#legend-modal-button").click(function() {
-				$("#legendModal").modal();
+			$("#help-modal-button").click(function() {
+				$("#helpModal").modal();
 			});
 		});
 
 		const WHITE = "#FFFFFF"
-		const LIGHT_GRAY = "#9F9F9F"
-		const MEDIUM_GRAY = "#7F7F7F"
-		const DARK_GRAY = "#5F5F5F"
+		const LIGHT_GRAY = "#CFCFCF"
+		const MEDIUM_GRAY = "#9F9F9F"
+		const DARK_GRAY = "#7F7F7F"
 		const BLACK = "#000000";
 		const GREEN = "#007F00";
 		const RED = "#ff0000";
