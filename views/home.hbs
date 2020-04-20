@@ -5,6 +5,11 @@
         <meta charset="utf-8">
         <title>Battlehack2020 Viewer</title>
     </head>
+    <style>
+      body {
+        font-family: 'Open Sans', sans-serif
+      }
+    </style>
     <body>
         <h1 align="center">Battlehack 2020 Viewer</h1>
 
@@ -21,7 +26,10 @@
             <button id="prev-round-button">&lt Prev</button>
             <p style="display:inline" align="center" id="round-text">0 / 0</p>
             <button id="next-round-button">Next &gt</button>
-            <p>Navigate through frames with 'A/D' or arrow keys</p>
+            <p>Navigate through frames with 'A/D' or arrow keys or use the slider below</p>
+            <div class="slidecontainer">
+              <input type="range" min="1" max="1" value="0" class="slider" id="myRange" style="width: calc(100% - 40px); max-width: 100%">
+            </div>
 
             <br>
         </div>
@@ -97,7 +105,7 @@
 
             var fileInput = document.getElementById("file-input");
             fileInput.addEventListener("change", uploadMap, false);
-
+            
             var loadedFrames = false;
             var frames = [];
             var frameWidth = -1;
@@ -116,6 +124,10 @@
                         loadedFrames = true;
                         maxRound = frames.length - 1;
                         setRoundNum(1);
+                        range.max = maxRound
+                        range.oninput = function() {
+                          setRoundNum(parseInt(this.value))
+                        } 
                     }
                     reader.readAsText(event.target.files[0]);
                 }
@@ -177,6 +189,7 @@
 
             var prevRoundButton = document.getElementById("prev-round-button");
             var nextRoundButton = document.getElementById("next-round-button");
+            var range = document.getElementById("myRange");
             var roundText = document.getElementById("round-text");
 
             prevRoundButton.onclick = prevRound;
@@ -186,6 +199,7 @@
                 if (loadedFrames) {
                     if (roundNum > 1) {
                         setRoundNum(roundNum - 1);
+                        range.value = roundNum - 1
                     }
                 }
             }
@@ -194,6 +208,7 @@
                 if (loadedFrames) {
                     if (roundNum < maxRound) {
                         setRoundNum(roundNum + 1);
+                        range.value = roundNum + 1
                     }
                 }
             }
