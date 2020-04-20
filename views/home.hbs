@@ -48,8 +48,10 @@
 					Check us out on Github: <a class="btn btn-social-icon btn-github" href="https://github.com/rzhan11/battlehack2020-viewer"><i class="fa fa-github"></i></a>
 				</p>
 				<hr />
-				Upload Replay:
-				<input type="file" value="upload" id="file-input">
+				<label class="btn btn-primary btn-small">
+				    <input type="file" id="file-input"/>
+				    <i></i> Upload Replay File
+				</label>
 				<hr />
 				<h2>Replay Information:</h2>
 				<p id="metadata-text"></p>
@@ -108,6 +110,7 @@
 
 		const WHITE = "#FFFFFF"
 		const LIGHT_GRAY = "#9F9F9F"
+		const MEDIUM_GRAY = "#7F7F7F"
 		const DARK_GRAY = "#5F5F5F"
 		const BLACK = "#000000";
 		const GREEN = "#007F00";
@@ -116,9 +119,9 @@
 		const BLUE = "#0000ff";
 
 		var outerPadding = 5;
-		var innerPadding = 0;
+		var innerPadding = 3;
 		var squareSize = 50;
-		var circleRadius = 5;
+		var wordOffset = 3;
 
 		const canvas = document.getElementById('map-canvas');
 		const context = canvas.getContext('2d');
@@ -127,13 +130,14 @@
 			canvas.width = 2 * outerPadding + (frameWidth - 1) * innerPadding + frameWidth * squareSize;
 			canvas.height = 2 * outerPadding + (frameHeight - 1) * innerPadding + frameHeight * squareSize;
 
+			// background
 			context.beginPath();
 			context.rect(0, 0, canvas.width, canvas.height);
 			context.closePath();
-
-			context.fillStyle = BLACK;
+			context.fillStyle = DARK_GRAY;
 			context.fill();
 
+			// font settings
 			context.font = '20pt sans-serif';
 			context.fillStyle = BLACK;
 			context.textAlign = "center";
@@ -152,7 +156,7 @@
 						if ((i + j) % 2 == 0) {
 							context.fillStyle = LIGHT_GRAY;
 						} else {
-							context.fillStyle = DARK_GRAY;
+							context.fillStyle = MEDIUM_GRAY;
 						}
 					} else if (frame[i][j][0] == "W") {
 						context.fillStyle = WHITE;
@@ -163,7 +167,7 @@
 
 					if (frame[i][j][0] != "N") {
 						context.fillStyle = RED;
-						var wx = 2 + outerPadding + i * innerPadding + (i + 0.5) * squareSize;
+						var wx = wordOffset + outerPadding + i * innerPadding + (i + 0.5) * squareSize;
 						var wy = outerPadding + j * innerPadding + (j + 0.5) * squareSize;
 						context.fillText(frame[i][j][1], wy, wx);
 					}

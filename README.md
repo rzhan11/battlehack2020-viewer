@@ -9,13 +9,13 @@ Viewer for Battlehack 2020 replay files
 4. Run `npm start`
 5. Navigate to http://localhost:8080/
 
-## Notes for local replays
+## Notes for Local Replays
 Be sure to run your games with the flag `--raw-text` and pipe your output to a log file
 ```
 python run.py --raw-text bot1 bot2 > log.txt
 ```
 
 ## Thank You
-neeyanthkvk for making it the website pretty and finding lots of bugs.
+neeyanthkvk for making the website pretty and finding lots of bugs.
 
 StoneT2000 for adding the range slider.
