@@ -160,9 +160,15 @@
                 var lines = data.split("\n");
 
                 metadata = {};
-                metadata.whiteTeamName = lines[0].substring(8);
-                metadata.blackTeamName = lines[1].substring(8);
-                metadata.version = lines[3].substring(9);
+                if (lines[0].substring(0, 8) == "Team 1: ") {
+                    metadata.whiteTeamName = lines[0].substring(8);
+                    metadata.blackTeamName = lines[1].substring(8);
+                    metadata.version = lines[3].substring(9);
+                } else {
+                    metadata.whiteTeamName = "Local";
+                    metadata.blackTeamName = "Local";
+                    metadata.version = "Local";
+                }
 
                 // load game frames
                 var index = 0;
@@ -280,6 +286,7 @@
                     } else {
                         winnerText.innerHTML += metadata.blackTeamName;
                     }
+                    winnerText.innerHTML += " (" + winner + ")";
                 } else {
                     winnerText.innerHTML = "";
                 }
