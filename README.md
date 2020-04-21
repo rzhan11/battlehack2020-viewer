@@ -18,4 +18,6 @@ python run.py --raw-text bot1 bot2 > log.txt
 ## Thank You
 neeyanthkvk for making the website pretty and finding lots of bugs.
 
+AC34 for adding the pawn counters.
+
 StoneT2000 for adding the range slider.
