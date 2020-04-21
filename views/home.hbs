@@ -39,7 +39,9 @@
 				<canvas class="board" id="map-canvas" height="0" width="0"></canvas>
 				<br />
 				<div align="center">
-					<p id="winner-text"></p>
+					<p id="white-pawn-count-text"></p>
+					<p id="black-pawn-count-text"></p>
+					<p id="game-info-text"></p>
 				</div>
 			</div>
 			<div class="col-4">
@@ -118,11 +120,15 @@
 
 		var outerPadding = 5;
 		var innerPadding = 3;
-		var squareSize = 50;
+		var squareSize = 35;
+		var wordFontSize = 15;
 		var wordOffset = 3;
 
 		const canvas = document.getElementById('map-canvas');
 		const context = canvas.getContext('2d');
+
+        var metadataText = document.getElementById("metadata-text");
+        var metadata = {};
 
 		function drawFrame() {
 			canvas.width = 2 * outerPadding + (frameWidth - 1) * innerPadding + frameWidth * squareSize;
@@ -136,12 +142,14 @@
 			context.fill();
 
 			// font settings
-			context.font = '20pt sans-serif';
+			context.font = wordFontSize + "pt sans-serif";
 			context.fillStyle = BLACK;
 			context.textAlign = "center";
 			context.textBaseline = 'middle';
 
 			var frame = frames[roundNum];
+			whitePawnCount = 0;
+			blackPawnCount = 0;
 			for (var i = 0; i < frameHeight; i++) {
 				for (var j = 0; j < frameWidth; j++) {
 					var x = outerPadding + i * innerPadding + i * squareSize;
@@ -158,8 +166,10 @@
 						}
 					} else if (frame[i][j][0] == "W") {
 						context.fillStyle = WHITE;
+						whitePawnCount++;
 					} else if (frame[i][j][0] == "B") {
 						context.fillStyle = BLACK;
+						blackPawnCount++;
 					}
 					context.fill();
 
@@ -177,8 +187,6 @@
 			}
 		}
 
-		var metadataText = document.getElementById("metadata-text");
-
 		function displayMetadata() {
 			metadataText.innerHTML = "White: " + metadata.whiteTeamName + "<br>";
 			metadataText.innerHTML += "Black: " + metadata.blackTeamName + "<br>";
@@ -192,13 +200,14 @@
 		var frames = [];
 		var frameWidth = -1;
 		var frameHeight = -1;
+		var whitePawnCount = 0;
+		var blackPawnCount = 0;
 		var winner = "";
-		var metadata = {};
 
 		var roundNum = 0;
 		var frameSpeed = 8;
 		var minFrameSpeed = 1;
-		var maxFrameSpeed = 32;
+		var maxFrameSpeed = 64;
 		var framePlaying = false;
 
 		function uploadMap(event) {
@@ -303,7 +312,10 @@
 		var playButton = document.getElementById("play-button");
 
 		var frameRange = document.getElementById("frame-range");
-		var winnerText = document.getElementById("winner-text");
+
+		var whitePawnCountText = document.getElementById("white-pawn-count-text");
+		var blackPawnCountText = document.getElementById("black-pawn-count-text");
+		var gameInfoText = document.getElementById("game-info-text");
 
 		prevRoundButton.onclick = prevRound;
 		nextRoundButton.onclick = nextRound;
@@ -335,17 +347,25 @@
 			roundNum = num;
 			roundText.innerHTML = roundNum + " / " + metadata.maxRound;
 			drawFrame();
+			displayMetadata();
+
+			// display game info text
+			whitePawnCountText.style.color = BLUE;
+			whitePawnCountText.innerHTML = "White Pawns: " + whitePawnCount + "<br>";
+			blackPawnCountText.style.color = RED;
+			blackPawnCountText.innerHTML = "Black Pawns: " + blackPawnCount + "<br>";
 			if (num == metadata.maxRound) {
-				winnerText.style.color = RED;
-				winnerText.innerHTML = "Winner: ";
+				gameInfoText.innerHTML = "Winner: ";
 				if (winner == "WHITE") {
-					winnerText.innerHTML += metadata.whiteTeamName;
+					gameInfoText.style.color = BLUE;
+					gameInfoText.innerHTML += metadata.whiteTeamName;
 				} else {
-					winnerText.innerHTML += metadata.blackTeamName;
+					gameInfoText.style.color = RED;
+					gameInfoText.innerHTML += metadata.blackTeamName;
 				}
-				winnerText.innerHTML += " (" + winner + ")";
+				gameInfoText.innerHTML += " (" + winner + ")";
 			} else {
-				winnerText.innerHTML = "";
+				gameInfoText.innerHTML = "";
 			}
 		}
 
