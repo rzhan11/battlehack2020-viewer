@@ -195,7 +195,7 @@
 				for (var i = 0; i < frameHeight; i++) {
 					for (var j = 0; j < frameWidth; j++) {
 						if (frame[i][j][0] != "N") {
-							currentPawns[frame[i][j][1]] = [i, j];
+							currentPawns[frame[i][j][1]] = [i, j, frame[i][j][0]];
 						}
 						if (prevFrame[i][j][0] != "N") {
 							prevPawns[prevFrame[i][j][1]] = [i, j];
@@ -212,11 +212,43 @@
 						if (curx == oldx && cury == oldy) {
 							continue;
 						}
+
+						if (currentPawns[id][2] == "W") {
+							context.fillStyle = BLUE;
+						} else {
+							context.fillStyle = RED;
+						}
+						context.globalAlpha = 0.4;
 						drawEdge(currentPawns[id], prevPawns[id]);
+						context.globalAlpha = 1.0;
 					}
 				}
 			}
 		}
+
+		function drawEdge (start, end) {
+			var start_x = outerPadding + start[0] * innerPadding + (start[0] + 0.5) * squareSize;
+			var start_y = outerPadding + start[1] * innerPadding + (start[1] + 0.5) * squareSize;
+			var end_x = outerPadding + end[0] * innerPadding + (end[0] + 0.5) * squareSize;
+			var end_y = outerPadding + end[1] * innerPadding + (end[1] + 0.5) * squareSize;
+			var dx = end[0] - start[0];
+			var dy = end[1] - start[1];
+			var magnitude = Math.sqrt(dx * dx + dy * dy);
+			var x_offset = -dy / magnitude * edgeWidth / 2;
+			var y_offset = dx / magnitude * edgeWidth / 2;
+
+
+			context.beginPath();
+			context.moveTo(start_y + y_offset, start_x + x_offset);
+			context.lineTo(start_y - y_offset, start_x - x_offset);
+			context.lineTo(end_y - y_offset, end_x - x_offset);
+			context.lineTo(end_y + y_offset, end_x + x_offset);
+			context.lineTo(start_y + y_offset, start_x + x_offset);
+			context.closePath();
+
+			context.fill();
+		}
+
 
 		function displayMetadata() {
 			metadataText.innerHTML = "White: " + metadata.whiteTeamName + "<br>";
@@ -330,32 +362,6 @@
 			// update screen
 			displayMetadata();
 			setRoundNum(1);
-		}
-
-		function drawEdge (start, end) {
-			var start_x = outerPadding + start[0] * innerPadding + (start[0] + 0.5) * squareSize;
-			var start_y = outerPadding + start[1] * innerPadding + (start[1] + 0.5) * squareSize;
-			var end_x = outerPadding + end[0] * innerPadding + (end[0] + 0.5) * squareSize;
-			var end_y = outerPadding + end[1] * innerPadding + (end[1] + 0.5) * squareSize;
-			var dx = end[0] - start[0];
-			var dy = end[1] - start[1];
-			var magnitude = Math.sqrt(dx * dx + dy * dy);
-			var x_offset = -dy / magnitude * edgeWidth / 2;
-			var y_offset = dx / magnitude * edgeWidth / 2;
-
-
-			context.beginPath();
-			context.moveTo(start_y + y_offset, start_x + x_offset);
-			context.lineTo(start_y - y_offset, start_x - x_offset);
-			context.lineTo(end_y - y_offset, end_x - x_offset);
-			context.lineTo(end_y + y_offset, end_x + x_offset);
-			context.lineTo(start_y + y_offset, start_x + x_offset);
-			context.closePath();
-
-			context.fillStyle = YELLOW;
-			context.globalAlpha = 0.4;
-			context.fill();
-			context.globalAlpha = 1.0;
 		}
 
 		var prevRoundButton = document.getElementById("prev-round-button");
