@@ -117,12 +117,14 @@
 		const BLACK = "#444444";
 		const RED = "#FF0000";
 		const BLUE = "#0000FF";
+		const YELLOW = "#FFFF00";
 
 		var outerPadding = 5;
 		var innerPadding = 3;
 		var squareSize = 35;
 		var wordFontSize = 15;
 		var wordOffset = 3;
+		var edgeWidth = 10;
 
 		const canvas = document.getElementById('map-canvas');
 		const context = canvas.getContext('2d');
@@ -185,6 +187,35 @@
 					}
 				}
 			}
+
+			if (roundNum > 1) {
+				var currentPawns = {};
+				var prevPawns = {};
+				var prevFrame = frames[roundNum - 1];
+				for (var i = 0; i < frameHeight; i++) {
+					for (var j = 0; j < frameWidth; j++) {
+						if (frame[i][j][0] != "N") {
+							currentPawns[frame[i][j][1]] = [i, j];
+						}
+						if (prevFrame[i][j][0] != "N") {
+							prevPawns[prevFrame[i][j][1]] = [i, j];
+						}
+					}
+				}
+
+				for (var id in currentPawns) {
+					if (id in prevPawns) {
+						var curx = currentPawns[id][0];
+						var cury = currentPawns[id][1];
+						var oldx = prevPawns[id][0];
+						var oldy = prevPawns[id][1];
+						if (curx == oldx && cury == oldy) {
+							continue;
+						}
+						drawEdge(currentPawns[id], prevPawns[id]);
+					}
+				}
+			}
 		}
 
 		function displayMetadata() {
@@ -209,6 +240,7 @@
 		var minFrameSpeed = 1;
 		var maxFrameSpeed = 64;
 		var framePlaying = false;
+		var drawMoveTrace = true;
 
 		function uploadMap(event) {
 			if (event.target.files.length > 0) {
@@ -298,6 +330,32 @@
 			// update screen
 			displayMetadata();
 			setRoundNum(1);
+		}
+
+		function drawEdge (start, end) {
+			var start_x = outerPadding + start[0] * innerPadding + (start[0] + 0.5) * squareSize;
+			var start_y = outerPadding + start[1] * innerPadding + (start[1] + 0.5) * squareSize;
+			var end_x = outerPadding + end[0] * innerPadding + (end[0] + 0.5) * squareSize;
+			var end_y = outerPadding + end[1] * innerPadding + (end[1] + 0.5) * squareSize;
+			var dx = end[0] - start[0];
+			var dy = end[1] - start[1];
+			var magnitude = Math.sqrt(dx * dx + dy * dy);
+			var x_offset = -dy / magnitude * edgeWidth / 2;
+			var y_offset = dx / magnitude * edgeWidth / 2;
+
+
+			context.beginPath();
+			context.moveTo(start_y + y_offset, start_x + x_offset);
+			context.lineTo(start_y - y_offset, start_x - x_offset);
+			context.lineTo(end_y - y_offset, end_x - x_offset);
+			context.lineTo(end_y + y_offset, end_x + x_offset);
+			context.lineTo(start_y + y_offset, start_x + x_offset);
+			context.closePath();
+
+			context.fillStyle = YELLOW;
+			context.globalAlpha = 0.4;
+			context.fill();
+			context.globalAlpha = 1.0;
 		}
 
 		var prevRoundButton = document.getElementById("prev-round-button");
